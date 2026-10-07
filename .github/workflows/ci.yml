@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: lint and tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: uv sync --python ${{ matrix.python }}
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q
+
+  standin:
+    name: against decisio's CPU stand-in
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Start a Decisio server on the CPU stand-in
+        run: |
+          uv venv --python 3.12 /tmp/decisio-venv
+          uv pip install --python /tmp/decisio-venv/bin/python "decisio==0.9.0" --torch-backend cpu
+          nohup /tmp/decisio-venv/bin/python -m decisio.serve.vllm_engine --backend hf \
+            --model Qwen/Qwen3-0.6B-Base --port 18000 > /tmp/decisio.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf http://127.0.0.1:18000/health && break; sleep 5; done
+          curl -sf http://127.0.0.1:18000/health
+      - run: uv sync
+      - run: uv run pytest -q tests/test_live.py
+        env:
+          DECISIO_URL: http://127.0.0.1:18000
+      - if: failure()
+        run: tail -50 /tmp/decisio.log
