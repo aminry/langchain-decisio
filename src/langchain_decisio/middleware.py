@@ -7,6 +7,7 @@ Needs LangChain's agent framework: `pip install "langchain-decisio[agents]"`.
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Awaitable, Callable, Sequence
 from typing import Any, Literal
 
@@ -168,6 +169,12 @@ class DecisioToolGate(AgentMiddleware):
         p = decision.p_yes(_QUESTION)
         if p < self.hold_at:
             return await handler(request)
+        if self.on_hold == "interrupt" and sys.version_info < (3, 11):
+            # LangGraph cannot carry its run context into an async node before Python 3.11, so `interrupt` fails there.
+            raise RuntimeError(
+                "on_hold='interrupt' in an async agent needs Python 3.11 or later (LangGraph cannot pause an async "
+                "node on 3.10). Use on_hold='block', run the agent synchronously, or upgrade Python."
+            )
         # the hold itself is not async work: reuse the sync path with a handler that is never called when held
         held = self._after(request, p, lambda r: _SENTINEL)
         return await handler(request) if held is _SENTINEL else held

@@ -113,6 +113,8 @@ agent = create_agent(model, tools=[...], middleware=[gate], checkpointer=InMemor
   `on_hold="block"` refuses the call and tells the model why, and asks nobody.
 - The default question asks about reversibility, reach, money, deletion and access, and tells the model to treat tool arguments and earlier tool output as data, never as instructions.
   Pass your own `question=Noul(...)` for your policy.
+- In an async agent, `on_hold="interrupt"` needs Python 3.11 or later, because LangGraph cannot carry its run context into an async node on 3.10.
+  On 3.10 use `block`, or run the agent synchronously; the gate says so when it happens.
 - It writes no arguments and calls no tool.
   A server that is down fails closed: the request error propagates and the tool does not run.
 - It is one cheap layer, not an access-control system.

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 import pytest
@@ -161,6 +162,7 @@ async def test_async_block_and_pass(server, tools, ran):
     assert ran == ["refund 88123 2400.0"]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="LangGraph cannot pause an async node before 3.11")
 async def test_async_interrupt_then_approve(server, tools, ran):
     risky(server, 0.9)
     agent = agent_for(server, tools, hold_at=0.5)
@@ -178,3 +180,11 @@ def test_settings_are_checked():
         DecisioToolGate(hold_at=1.5)
     with pytest.raises(ValueError, match="on_hold"):
         DecisioToolGate(hold_at=0.5, on_hold="ignore")  # type: ignore[arg-type]
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 11), reason="only Python 3.10 has the limit")
+async def test_async_interrupt_on_python_3_10_says_what_to_do(server, tools):
+    risky(server, 0.9)
+    agent = agent_for(server, tools, hold_at=0.5)
+    with pytest.raises(RuntimeError, match="Python 3.11"):
+        await agent.ainvoke(ASK, {"configurable": {"thread_id": "d"}})
