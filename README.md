@@ -2,6 +2,7 @@
 
 LangChain components for [Decisio](https://github.com/aminry/decisio), an open-source server that answers typed questions about a piece of text with a probability for every option, from one forward pass of a frozen open model.
 
+Decisio is built by [Tachara AI Lab](https://huggingface.co/tachara-ai).
 Decisio is an independent project, not affiliated with or endorsed by TypeSafe, and implements TypeSafe's published System One wire format.
 This package is not affiliated with LangChain either.
 
