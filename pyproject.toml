@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "langchain-decisio"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "LangChain components for Decisio: a classifier, a router and a tool-risk gate"
 readme = "README.md"
 requires-python = ">=3.10"

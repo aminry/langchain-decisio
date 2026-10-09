@@ -37,7 +37,7 @@ jobs:
       - name: Start a Decisio server on the CPU stand-in
         run: |
           uv venv --python 3.12 /tmp/decisio-venv
-          uv pip install --python /tmp/decisio-venv/bin/python "decisio==0.9.0" --torch-backend cpu
+          uv pip install --python /tmp/decisio-venv/bin/python "decisio==0.10.0" --torch-backend cpu
           nohup /tmp/decisio-venv/bin/python -m decisio.serve.vllm_engine --backend hf \
             --model Qwen/Qwen3-0.6B-Base --port 18000 > /tmp/decisio.log 2>&1 &
           for i in $(seq 1 90); do curl -sf http://127.0.0.1:18000/health && break; sleep 5; done

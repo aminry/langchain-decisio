@@ -5,7 +5,7 @@ LangChain components for [Decisio](https://github.com/aminry/decisio), an open-s
 Decisio is an independent project, not affiliated with or endorsed by TypeSafe, and implements TypeSafe's published System One wire format.
 This package is not affiliated with LangChain either.
 
-**Status: pre-release (0.1.0.dev0), not published to PyPI yet.**
+**Status: 0.1.0, beta.** The classifier and the router are small and stable; the tool gate sits on LangChain's new agent middleware API and is the part most likely to change.
 
 ## Three pieces
 
@@ -141,7 +141,7 @@ Decisio applies it to any later question with the same options.
 | langchain-core | 1.6.7 |
 | langchain | 1.4.3 (the tool gate) |
 | langgraph | 1.2.14 |
-| decisio | 0.9.0, on its CPU stand-in; see CI |
+| decisio | 0.10.0, on its CPU stand-in; see CI |
 | Python | 3.10 to 3.13 |
 
 The tests run against a fake server and a real LangChain agent with a scripted model.
